@@ -1,0 +1,613 @@
+{%- if section.settings.column_options == 'single_double_column' -%}
+  {% assign layout_one = 'one-third-layout-one' %}
+{%- endif -%}
+
+{%- if section.settings.column_options == 'single_double_left' -%}
+  {% assign layout_one = 'one-third-layout-two' %}
+  {% assign card_wrapper_alter = 'overlay-card-wrapper-alter'%}
+{%- endif -%}
+
+{%- if section.settings.column_options == 'single_double_right' -%}
+  {% assign layout_one = 'one-third-layout-three' %}
+  {% assign card_wrapper_alter = 'overlay-card-wrapper-alter'%}
+{%- endif -%}
+
+{%- if section.settings.column_options == 'single_triple_column' -%}
+  {% assign layout_one = 'two-half-layout-alternative' %}
+{%- endif -%}
+
+{% liquid
+case section.blocks.size
+when 1
+  assign column_size = ''
+when 2
+  assign column_size = 'one-half'
+when 3
+  assign column_size = 'one-third'
+when 4 
+  assign column_size = 'two-half'
+when 5
+  assign column_size = 'layout-for-five-items'
+when 6
+  assign column_size = 'layout-for-six-items'
+else
+  assign column_size = 'one-quarter'
+endcase 
+
+%}
+
+{% assign dateNow = "now" | date: "%b %d, %Y %H:%M:%S" %}
+
+<div class="page-width-multicolumn">
+  {%- if section.blocks != blank -%}
+  <div class="swiper mb-50">
+     <div class="swiper-wrapper overlay-card-wrapper {{card_wrapper_alter}}">
+      {%- for block in section.blocks -%}
+       	   {% assign product_item = all_products[block.settings.product] %}
+       
+           <div class="swiper-slide card-item  card-item-bg-{{block.id}} {{column_size}} {{layout_one}} {%- if section.blocks.size == 1 -%} width-100 {%- endif -%}" data-card-link="{{ block.settings.destination_url }}">
+              <div class="content-wraper">
+                {%- if block.settings.caption_text != blank -%}
+                  <span class="card-caption-{{block.id}}">{{block.settings.caption_text}}</span>
+                {%- endif -%}
+                <h2 class="card-heading-mobile-{{block.id}} card-heading-{{block.id}}">{{block.settings.title_text}}{{block.settings.title_text_highlight}}</h2>
+               {% if product_item != blank %} 
+                  <div class="item-product-info">
+                    <p>{{product_item.vendor}}</p>
+                    <p>{{product_item.title}}</p>
+                    <p>{{product_item.price | money}}</p>
+                  </div>
+                {% endif %} 
+                
+                {% if block.settings.countdown_date != blank and dateNow < block.settings.countdown_date %}
+                	<div class="Prduct-update-wrapper lunching-soon-{{block.id}}">
+                      <span></span>
+                      <p>Lunching Soon</p>
+                    </div>
+                {% elsif product_item != blank and product_item.available == false%}
+                	<div class="Prduct-update-wrapper sold-out-{{block.id}}">
+                      <span></span>
+                      <p>Sold out</p>
+                    </div>
+                {% else %}
+                	<div class="Prduct-update-wrapper live-now-{{block.id}}">
+                      <span></span>
+                      <p>Live Now</p>
+                    </div>
+                {% endif %}               
+                
+                {%- if block.settings.countdown_date != blank and dateNow < block.settings.countdown_date-%}
+                  {% render 'countdown-timer', end_date: block.settings.countdown_date, id: block.id, block: block %}
+                {%- endif -%}
+                {%- if block.settings.destination_url != blank -%}
+                  <a href="{{block.settings.destination_url}}" class="card-button card-button-{{block.id}}">{{block.settings.button_text}}
+                    {%- if block.settings.button_text != blank -%}
+                      {%- if block.settings.button_text_arrow != blank -%}
+                          <img src="{{block.settings.button_text_arrow | img_url: 'master' }}" alt="">
+                      {%- else -%}
+                          {% render 'right-arraw' %}
+                      {%- endif -%}
+                    {%- endif -%}
+                  </a>
+                {%- endif -%}
+              </div>
+          </div>
+      {%- endfor -%}
+     </div>
+  </div>
+  {%- endif -%}
+</div>
+<style>
+  .width-100{
+    width: 100%!important;
+  }
+  .mb-50{
+    margin-bottom: 50px;
+  }
+  
+  @media (min-width: 768px) {
+    .card-item {
+      height: {{ section.settings.column_height }}vh !important;
+    }
+  }
+  @media (max-width: 767px) {
+    .card-item {
+      height: {{ section.settings.column_height_mobile }}vh;
+    }
+    .swiper {
+      height: {{ section.settings.column_height_mobile }}vh;
+    }
+  }
+ 
+ .Prduct-update-wrapper {
+   display: flex;
+   align-items: center;
+   gap: 5px;
+   text-transform: uppercase;
+ }
+  
+ .Prduct-update-wrapper span{
+   height: 10px;
+      width: 10px;
+      display: block;
+      border-radius: 100%;
+ }
+  
+ .item-product-info{
+   color: #FFF;
+ }
+  
+{% for block in section.blocks %}
+  
+   .sold-out-{{block.id}} span {
+      background: {{block.settings.product_status_dot_soldout}};
+  }
+  
+  .lunching-soon-{{block.id}} span {
+      background: {{block.settings.product_status_dot_lunchingsoon}};
+  }
+  
+  .live-now-{{block.id}} span {
+      background: {{block.settings.product_status_dot_livenow}};
+  }
+  
+  .sold-out-{{block.id}} p {
+      color: {{block.settings.product_status_text_soldout}};
+  }
+  
+  .lunching-soon-{{block.id}} p {
+      color: {{block.settings.product_status_text_lunchingsoon}};
+  }
+  
+  .live-now-{{block.id}} p {
+      color: {{block.settings.product_status_text_livenow}};
+  }
+  .card-item-bg-{{block.id}}{
+    {%- if block.settings.overlay-item-bg != blank -%}
+        background:url('{{block.settings.overlay-item-bg | img_url: 'master' }}');
+    {% else %}
+        background:url('{{section.settings.default-item-bg | img_url: 'master' }}');
+    {%- endif -%}
+          
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+  }
+  
+  {{block.settings.caption_font | font_face}}
+  {{block.settings.title_text_font | font_face}}
+  {{block.settings.title_highlight_font | font_face}}
+  {{block.settings.button_text_font | font_face}}
+  
+  .card-caption-{{block.id}}{
+    color: {{block.settings.caption_text_color}};
+    background-color: {{block.settings.caption_bg_color}};
+    font-family: {{block.settings.caption_font.family}};
+    font-size: {{block.settings.caption_font_size | append: "rem"}};
+    border: 1px solid {{block.settings.caption_border_color}};
+    border-radius: {{block.settings.caption_border_radias | append: "px"}};
+    padding: 5px 8px;
+  }
+  
+  .card-heading-{{block.id}}{
+    color: {{block.settings.title_color}};
+    font-size: {{block.settings.title_font_size | append: "rem"}};
+   	text-decoration:{{block.settings.title_text-decoration}};
+    line-height:{{block.settings.title_line_height }}; 
+    font-style: {{block.settings.title_text-font-style}};
+    font-family: {{block.settings.title_text_font.family}};
+/*     margin-bottom: 50px; */
+    width: 80%;
+    margin-top: 25px;
+    margin-bottom: 14px;
+  }
+  .card-heading-{{block.id}} p:last-child{
+    color: {{block.settings.title_highlight_color}};
+    opacity: {{block.settings.title_highlight_opacity}};
+    font-family: {{block.settings.title_highlight_font.family}};
+  }
+  
+  .card-heading-{{block.id}} p{
+    margin-bottom: 0px;
+    display: inline;
+  }
+  
+  .card-button-{{block.id}}{
+    text-decoration: none;
+    color: {{block.settings.button_font_color}};
+    font-size: {{block.settings.button_text_font_size | append: "rem"}};;
+    {%- if block.settings.button_border_style != blank -%}
+     border-width: 1px;
+     border-style: solid;
+    {%- endif -%}
+    border-color: {{block.settings.button_border_style}};
+    padding: 5px 8px 5px 0px;
+    background-color: {{block.settings.button_fill_style}};
+    font-family: {{block.settings.button_text_font.family}};
+  }
+  
+  @media (max-width:768px){
+    .card-heading-mobile-{{block.id}}{
+      font-size: {{block.settings.title_mobile_font_size | append: "rem"}};
+    }
+  }
+{% endfor %}  
+</style>
+
+{% schema %}
+{
+	"name": "Multicolumn Gallery", 	
+	"settings": [
+	 {
+		"type": "image_picker",
+		"id": "default-item-bg",
+		"label": "Default Background Image"		
+	 },
+	 {
+			"type": "select",
+			"id": "column_options",
+			"label": "Column Options",
+			"default": "default_column",
+			"options": [
+				{
+					"value": "default_column",
+					"label": "Default Column"
+				},
+				{
+					"value": "single_double_column",
+					"label": "Single Top : Double Bottom"
+				},
+				{
+					"value": "single_double_left",
+					"label": "Single Left : Double Right"
+				},
+				{
+					"value": "single_double_right",
+					"label": "Single Right : Double Left"
+				},
+				{
+					"value": "single_triple_column",
+					"label": "Single Top : Triple Bottom"
+				}
+			]
+		},
+		{
+          "type": "range",
+          "id": "column_height",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "unit": "vh",
+          "label": "Column height",
+		  "info": "vh means 'viewport height' i.e. what percentage of the viewport's hieght you want",
+          "default": 85
+        },
+		{
+          "type": "range",
+          "id": "column_height_mobile",
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "unit": "vh",
+          "label": "Column height mobile",
+          "default": 65
+        }
+	],
+	"blocks": [{
+		"type": "overlay-item",
+		"name": "Multicolumn Item",
+		"settings": [{
+				"type": "image_picker",
+				"id": "overlay-item-bg",
+				"label": "Background Image"
+			},
+			{
+              "type": "product",
+              "id": "product",
+              "label": "Product"
+            },
+			{
+				"type": "color",
+				"id": "product_status_dot_livenow",
+				"label": "LiveNow Dot Color",
+				"default": "#D1E30E"
+			},
+			{
+				"type": "color",
+				"id": "product_status_dot_soldout",
+				"label": "SoldOut Dot Color",
+				"default": "#E22120"
+			},
+			{
+				"type": "color",
+				"id": "product_status_dot_lunchingsoon",
+				"label": "LunchingSoon Dot Color",
+				"default": "#DDD6CD"
+			},
+			{
+				"type": "color",
+				"id": "product_status_text_livenow",
+				"label": "LiveNow Text Color",
+				"default": "#D1E30E"
+			},
+			{
+				"type": "color",
+				"id": "product_status_text_soldout",
+				"label": "SoldOut text Color",
+				"default": "#E22120"
+			},
+			{
+				"type": "color",
+				"id": "product_status_text_lunchingsoon",
+				"label": "LunchingSoon text Color",
+				"default": "#FFF"
+			},
+			{
+				"type": "text",
+				"id": "caption_text",
+				"label": "Caption",
+				"default": "Jounral"
+			},
+			{
+				"type": "range",
+				"id": "caption_font_size",
+				"label": "Caption Font Size",
+				"min": 1,
+				"max": 5,
+				"step": 0.1,
+				"unit": "rem",
+				"default": 2
+			},
+			{
+				"type": "color",
+				"id": "caption_bg_color",
+				"label": "Caption Fill Color"
+			},
+			{
+				"type": "color",
+				"id": "caption_text_color",
+				"label": "Caption Text Color",
+				"default": "#fff"
+			},
+			{
+				"type": "color",
+				"id": "caption_border_color",
+				"label": "Caption Border Color",
+				"default": "#fff"
+			},
+			{
+              "type": "font_picker",
+              "id": "caption_font",
+              "default": "open_sans_n4",
+              "label": "Caption Font Type"
+            },
+			{
+				"type": "range",
+				"id": "caption_border_radias",
+				"label": "Caption Border Radius",
+				"min": 1,
+				"max": 50,
+				"step": 1,
+				"unit": "px",
+				"default": 1
+			},
+			{
+				"type": "richtext",
+				"id": "title_text",
+				"label": "Title",
+				"default": "<p>Inner Visions </p>"
+			},
+			{
+              "type": "font_picker",
+              "id": "title_text_font",
+              "default": "open_sans_n4",
+              "label": "Title Font Type"
+            },
+			{
+				"type": "richtext",
+				"id": "title_text_highlight",
+				"label": "Title Highlight",
+				"default": "<p>In this third curated launch, Larry Ossei-Mensah considers storytelling as provocation.</p>"
+			},
+			{
+              "type": "font_picker",
+              "id": "title_highlight_font",
+              "default": "open_sans_n4",
+              "label": "Title Highlight Font Type"
+            },
+			{
+				"type": "range",
+				"id": "title_font_size",
+				"label": "Title Font Size",
+				"min": 1,
+				"max": 7,
+				"step": 0.1,
+				"unit": "rem",
+				"default": 3
+			},
+			{
+				"type": "range",
+				"id": "title_mobile_font_size",
+				"label": "Title Mobile Font Size",
+				"min": 1,
+				"max": 7,
+				"step": 0.1,
+				"unit": "rem",
+				"default": 2
+			},
+			{
+				"type": "color",
+				"id": "title_color",
+				"label": "Title's Color",
+				"default": "#fff"
+			},
+			{
+				"type": "select",
+				"id": "title_text-decoration",
+				"label": "Title's Text Decoration",
+				"default": "none",
+				"options": [{
+						"value": "underline",
+						"label": "Underline"
+					},
+					{
+						"value": "none",
+						"label": "None"
+					}
+				]
+			},
+			{
+				"type": "select",
+				"id": "title_text-font-style",
+				"label": "Title's Style",
+				"default": "strong",
+				"options": [{
+						"value": "strong",
+						"label": "Strong"
+					},
+					{
+						"value": "italic ",
+						"label": "Italic "
+					}
+				]
+			},
+			{
+				"type": "range",
+				"id": "title_line_height",
+				"label": "Title's Line Height",
+				"min": 1,
+				"max": 5,
+				"step": 0.1,
+				"unit": "px",
+				"default": 1
+			},
+			{
+				"type": "color",
+				"id": "title_highlight_color",
+				"label": "Title Highlight Color",
+				"default": "#fff"
+			},
+			{
+				"type": "range",
+				"id": "title_highlight_opacity",
+				"label": "Title Highlight Opacity",
+				"min": 0.1,
+				"max": 1,
+				"step": 0.1,
+				"default": 0.8
+			},
+			{
+				"type": "text",
+				"id": "button_text",
+				"label": "Button Text",
+				"default": "Read The Story"
+			},
+			{
+				"type": "range",
+				"id": "button_text_font_size",
+				"label": "Button Text Font Size",
+				"min": 1,
+				"max": 7,
+				"step": 0.1,
+				"unit": "rem",
+				"default": 1.5
+			},
+			{
+              "type": "font_picker",
+              "id": "button_text_font",
+              "default": "open_sans_n4",
+              "label": "Button Text Font Type"
+            },
+			{
+				"type": "image_picker",
+				"id": "button_text_arrow",
+				"label": "Button Arrow"
+			},
+			{
+				"type": "color",
+				"id": "button_border_style",
+				"label": "Button's Border"
+			},
+			{
+				"type": "color",
+				"id": "button_fill_style",
+				"label": "Button's Fill"
+			},
+			{
+				"type": "color",
+				"id": "button_font_color",
+				"label": "Button's Font Color",
+				"default": "#fff"
+			},
+			{
+				"type": "text",
+				"id": "countdown_date",
+				"label": "Countdown End Date (December 31, 2022 18:30:00)"
+			},
+			{
+              "type": "select",
+              "id": "countdown_text_decoration",
+              "label": "Countdown text decoration",
+              "options": [
+                {
+                  "value": "lowercase",
+                  "label": "Lowercase"
+                },
+                {
+                  "value": "capitalize",
+                  "label": "Capitalize"
+                },
+                {
+                  "value": "uppercase",
+                  "label": "Uppercase"
+                }
+              ],
+              "default": "capitalize"
+            },
+			{
+				"type": "range",
+				"id": "countdown_font_size",
+				"label": "Contdown Font's Size",
+				"min": 15,
+				"max": 25,
+				"step": 1,
+				"unit": "px",
+				"default": 16
+			},
+			{
+				"type": "color",
+				"id": "countdown_title_font_color",
+				"label": "Countdown Title Color",
+				"default": "#fff"
+			},
+			{
+				"type": "color",
+				"id": "countdown_nemeric_font_color",
+				"label": "Countdown Newmeric Color",
+				"default": "#E22120"
+			},
+			{
+              "type": "font_picker",
+              "id": "countdown_nemeric_font",
+              "default": "open_sans_n4",
+              "label": "Countdown Nemeric Font Type"
+            },
+			{
+              "type": "font_picker",
+              "id": "countdown_title_font",
+              "default": "open_sans_n4",
+              "label": "Countdown Title Font Type"
+            },
+			{
+				"type": "url",
+				"id": "destination_url",
+				"label": "Destination Url",
+				"default": "/collections"
+			}
+		]
+	}],
+	"presets": [{
+		"name": "Multicolumn Gallery"
+	}]
+}
+{% endschema %}

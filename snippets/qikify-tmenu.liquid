@@ -1,0 +1,18 @@
+<script type="text/javascript" src="https://sdk.qikify.com/tmenu/app-v5.js" defer="defer"></script>
+{% render 'qikify-tmenu-data' %}
+<style id="qikify-tmenu-custom-style">/* Henry - ticket 23953 - 16Feb2022 */
+.tmenu_app .tmenu_item--root>.tmenu_submenu {
+  box-shadow: none !important;
+}
+
+.tmenu_app .tmenu_item--root.tmenu_item_active > .tmenu_item_link {
+  border-bottom: 2px solid #000;
+}
+
+.tmenu_app_mobile .tmenu_item_link {
+  color: #000;
+}
+/* Fix submenu padding - #24172 - Sebastian - 23/02/2022 */
+.tmenu_item--root .tmenu_submenu {
+  padding: 20px 50px !important;
+}</style>
